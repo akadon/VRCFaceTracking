@@ -15,10 +15,18 @@ using VRCFaceTracking.Linux.Models;
 using VRCFaceTracking.Linux.Services;
 using VRCFaceTracking.Linux;
 using VRCFaceTracking.Linux.ViewModels;
-using VRCFaceTracking.Core.Params.Data;
-using Microsoft.Extensions.Logging;
 using CoreUtils = VRCFaceTracking.Core.Utils;
 using UnifiedTracking = VRCFaceTracking.UnifiedTracking;
+
+// Tmds.DBus (Wayland backend) throws TaskCanceledException on a background
+// thread during shutdown when the Avalonia dispatcher is already torn down.
+// It cannot be caught with try/catch since it propagates via Task.ThrowAsync.
+// Intercept it here and exit cleanly instead of letting the CLR abort.
+AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+{
+    if (e.ExceptionObject is TaskCanceledException or OperationCanceledException)
+        Environment.Exit(0);
+};
 
 // Wipe reset file if present
 var resetFile = Path.Combine(CoreUtils.PersistentDataDirectory, "reset");
