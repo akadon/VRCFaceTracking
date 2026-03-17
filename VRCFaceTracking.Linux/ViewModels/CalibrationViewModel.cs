@@ -1,16 +1,21 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.Logging;
 using VRCFaceTracking.Core.Params.Data;
-using VRCFaceTracking.Core.Params.Data.Mutation;
 
 namespace VRCFaceTracking.Linux.ViewModels;
 
 public partial class CalibrationViewModel : ObservableObject
 {
-    public ObservableCollection<TrackingMutation> Mutations { get; }
+    public ObservableCollection<MutationViewModel> Mutations { get; }
 
-    public CalibrationViewModel(UnifiedTrackingMutator mutator)
+    public CalibrationViewModel(UnifiedTrackingMutator mutator, ILogger<CalibrationViewModel> logger)
     {
-        Mutations = mutator._mutations;
+        logger.LogDebug("[Calibration] Building ViewModel wrappers for {Count} mutations",
+            mutator._mutations.Count);
+
+        Mutations = new ObservableCollection<MutationViewModel>(
+            mutator._mutations.Select(m => new MutationViewModel(m, logger))
+        );
     }
 }

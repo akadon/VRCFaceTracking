@@ -1,22 +1,19 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:VRCFaceTracking.Linux.ViewModels"
-             xmlns:mutator="using:VRCFaceTracking.Core.Params.Data.Mutation"
-             xmlns:conv="using:VRCFaceTracking.Linux.Converters"
              x:Class="VRCFaceTracking.Linux.Views.CalibrationPage"
              x:DataType="vm:CalibrationViewModel">
 
   <UserControl.Resources>
-    <conv:MutationTypeEqualConverter x:Key="TypeEq" />
 
-    <!-- Action button row -->
-    <DataTemplate x:Key="ActionTemplate" DataType="mutator:MutationAction">
+    <!-- Action button -->
+    <DataTemplate x:Key="ActionTpl" DataType="vm:MutationActionViewModel">
       <Border Background="#14ffffff" CornerRadius="4" Padding="12,8" Margin="0,2">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Grid.Column="0" Text="{Binding Name}"
                      VerticalAlignment="Center" FontSize="12" Foreground="#C0C0D8" />
           <Button Grid.Column="1" Content="{Binding Name}"
-                  Command="{Binding}"
+                  Command="{Binding ExecuteCommand}"
                   Padding="10,4" FontSize="11"
                   Background="#2A3A5A" Foreground="#80B0E0"
                   CornerRadius="4" BorderThickness="0" />
@@ -24,23 +21,27 @@
       </Border>
     </DataTemplate>
 
-    <!-- Range (min–max dual sliders) -->
-    <DataTemplate x:Key="RangeTemplate" DataType="mutator:MutationRangeProperty">
+    <!-- Range (two sliders) -->
+    <DataTemplate x:Key="RangeTpl" DataType="vm:MutationRangeViewModel">
       <Border Background="#14ffffff" CornerRadius="4" Padding="12,8" Margin="0,2">
-        <StackPanel Spacing="6">
+        <StackPanel Spacing="4">
           <TextBlock Text="{Binding Name}" FontSize="12" Foreground="#C0C0D8" />
-          <Grid ColumnDefinitions="70,*,70">
-            <NumericUpDown Grid.Column="0" Value="{Binding Item1}"
+          <Grid ColumnDefinitions="64,*,64">
+            <NumericUpDown Grid.Column="0"
+                           Value="{Binding RangeStart, Mode=TwoWay}"
                            Minimum="{Binding Min}" Maximum="{Binding Max}"
                            Increment="0.01" FormatString="0.00"
                            FontSize="11" Padding="4,2" />
-            <StackPanel Grid.Column="1" Spacing="1" Margin="8,0" VerticalAlignment="Center">
-              <Slider Value="{Binding Item1}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+            <StackPanel Grid.Column="1" Margin="8,0" VerticalAlignment="Center" Spacing="2">
+              <Slider Value="{Binding RangeStart, Mode=TwoWay}"
+                      Minimum="{Binding Min}" Maximum="{Binding Max}"
                       TickPlacement="None" />
-              <Slider Value="{Binding Item2}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+              <Slider Value="{Binding RangeEnd, Mode=TwoWay}"
+                      Minimum="{Binding Min}" Maximum="{Binding Max}"
                       TickPlacement="None" />
             </StackPanel>
-            <NumericUpDown Grid.Column="2" Value="{Binding Item2}"
+            <NumericUpDown Grid.Column="2"
+                           Value="{Binding RangeEnd, Mode=TwoWay}"
                            Minimum="{Binding Min}" Maximum="{Binding Max}"
                            Increment="0.01" FormatString="0.00"
                            FontSize="11" Padding="4,2" />
@@ -49,49 +50,51 @@
       </Border>
     </DataTemplate>
 
-    <!-- Property row: checkbox, slider, or textbox depending on Type -->
-    <DataTemplate x:Key="PropertyTemplate" DataType="mutator:MutationProperty">
+    <!-- Property: CheckBox / Slider / TextBox based on Type enum -->
+    <DataTemplate x:Key="PropertyTpl" DataType="vm:MutationPropertyViewModel">
       <Border Background="#14ffffff" CornerRadius="4" Padding="12,8" Margin="0,2">
-        <Grid ColumnDefinitions="*,Auto,180">
-          <TextBlock Grid.Column="0" Text="{Binding Name}"
-                     VerticalAlignment="Center" FontSize="12" Foreground="#C0C0D8" />
-
-          <!-- value label shown beside the slider -->
-          <TextBlock Grid.Column="1"
-                     Text="{ReflectionBinding Value}"
-                     FontSize="11" Foreground="#A0A0C0"
-                     VerticalAlignment="Center" Margin="8,0"
-                     IsVisible="{Binding Type,
-                       Converter={StaticResource TypeEq},
-                       ConverterParameter={x:Static mutator:MutationPropertyType.Slider}}" />
-
-          <!-- CheckBox (bool) -->
-          <CheckBox Grid.Column="2"
-                    IsChecked="{ReflectionBinding Value, Mode=TwoWay}"
-                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                    IsVisible="{Binding Type,
-                      Converter={StaticResource TypeEq},
-                      ConverterParameter={x:Static mutator:MutationPropertyType.CheckBox}}" />
-
-          <!-- Slider (float) -->
-          <Slider Grid.Column="2"
-                  Value="{ReflectionBinding Value, Mode=TwoWay}"
-                  Minimum="{Binding Min}" Maximum="{Binding Max}"
-                  TickPlacement="None" VerticalAlignment="Center"
-                  IsVisible="{Binding Type,
-                    Converter={StaticResource TypeEq},
-                    ConverterParameter={x:Static mutator:MutationPropertyType.Slider}}" />
-
-          <!-- TextBox (string / other) -->
-          <TextBox Grid.Column="2"
-                   Text="{ReflectionBinding Value, Mode=TwoWay}"
-                   FontSize="11" VerticalAlignment="Center"
-                   IsVisible="{Binding Type,
-                     Converter={StaticResource TypeEq},
-                     ConverterParameter={x:Static mutator:MutationPropertyType.TextBox}}" />
+        <Grid>
+          <!-- CheckBox row -->
+          <Grid ColumnDefinitions="*,Auto"
+                IsVisible="{Binding Type,
+                  Converter={x:Static ObjectConverters.Equal},
+                  ConverterParameter={x:Static vm:MutationPropertyTypeProxy.CheckBox}}">
+            <TextBlock Grid.Column="0" Text="{Binding Name}"
+                       VerticalAlignment="Center" FontSize="12" Foreground="#C0C0D8" />
+            <CheckBox Grid.Column="1" IsChecked="{Binding BoolValue, Mode=TwoWay}"
+                      HorizontalAlignment="Right" VerticalAlignment="Center" />
+          </Grid>
+          <!-- Slider row -->
+          <Grid ColumnDefinitions="*,60,160"
+                IsVisible="{Binding Type,
+                  Converter={x:Static ObjectConverters.Equal},
+                  ConverterParameter={x:Static vm:MutationPropertyTypeProxy.Slider}}">
+            <TextBlock Grid.Column="0" Text="{Binding Name}"
+                       VerticalAlignment="Center" FontSize="12" Foreground="#C0C0D8" />
+            <NumericUpDown Grid.Column="1"
+                           Value="{Binding FloatValue, Mode=TwoWay}"
+                           Minimum="{Binding Min}" Maximum="{Binding Max}"
+                           Increment="0.01" FormatString="0.00"
+                           FontSize="10" Padding="2" ShowButtonSpinner="False" />
+            <Slider Grid.Column="2"
+                    Value="{Binding FloatValue, Mode=TwoWay}"
+                    Minimum="{Binding Min}" Maximum="{Binding Max}"
+                    TickPlacement="None" VerticalAlignment="Center" />
+          </Grid>
+          <!-- TextBox row -->
+          <Grid ColumnDefinitions="*,180"
+                IsVisible="{Binding Type,
+                  Converter={x:Static ObjectConverters.Equal},
+                  ConverterParameter={x:Static vm:MutationPropertyTypeProxy.TextBox}}">
+            <TextBlock Grid.Column="0" Text="{Binding Name}"
+                       VerticalAlignment="Center" FontSize="12" Foreground="#C0C0D8" />
+            <TextBox Grid.Column="1" Text="{Binding StringValue, Mode=TwoWay}"
+                     FontSize="11" VerticalAlignment="Center" />
+          </Grid>
         </Grid>
       </Border>
     </DataTemplate>
+
   </UserControl.Resources>
 
   <ScrollViewer Padding="24,16,24,24">
@@ -102,11 +105,12 @@
 
       <ItemsControl ItemsSource="{Binding Mutations}">
         <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="mutator:TrackingMutation">
-            <!-- CheckBox is a sibling of the Expander to avoid click conflicts
-                 with the Expander's internal ToggleButton header. -->
+          <DataTemplate x:DataType="vm:MutationViewModel">
+            <!-- IsActive sits outside the Expander so clicks aren't swallowed
+                 by the Expander's internal ToggleButton. -->
             <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
-              <CheckBox Grid.Column="0" IsChecked="{Binding IsActive}"
+              <CheckBox Grid.Column="0"
+                        IsChecked="{Binding IsActive, Mode=TwoWay}"
                         VerticalAlignment="Top" Margin="0,10,8,0" />
               <Expander Grid.Column="1" HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch">
@@ -120,17 +124,17 @@
 
                 <ItemsControl ItemsSource="{Binding Components}" Margin="8,4,0,8">
                   <ItemsControl.DataTemplates>
-                    <DataTemplate DataType="mutator:MutationAction">
+                    <DataTemplate DataType="vm:MutationActionViewModel">
                       <ContentControl Content="{Binding}"
-                                      ContentTemplate="{StaticResource ActionTemplate}" />
+                                      ContentTemplate="{StaticResource ActionTpl}" />
                     </DataTemplate>
-                    <DataTemplate DataType="mutator:MutationRangeProperty">
+                    <DataTemplate DataType="vm:MutationRangeViewModel">
                       <ContentControl Content="{Binding}"
-                                      ContentTemplate="{StaticResource RangeTemplate}" />
+                                      ContentTemplate="{StaticResource RangeTpl}" />
                     </DataTemplate>
-                    <DataTemplate DataType="mutator:MutationProperty">
+                    <DataTemplate DataType="vm:MutationPropertyViewModel">
                       <ContentControl Content="{Binding}"
-                                      ContentTemplate="{StaticResource PropertyTemplate}" />
+                                      ContentTemplate="{StaticResource PropertyTpl}" />
                     </DataTemplate>
                   </ItemsControl.DataTemplates>
                 </ItemsControl>
