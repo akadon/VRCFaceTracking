@@ -7,16 +7,20 @@ using VRCFaceTracking.Core.Library;
 using VRCFaceTracking.Core.mDNS;
 using VRCFaceTracking.Core.Models;
 using VRCFaceTracking.Core.OSC.Query.mDNS;
+using VRCFaceTracking.Core.Contracts;
+using VRCFaceTracking.Core.Models;
+using CoreUtils = VRCFaceTracking.Core.Utils;
+using UnifiedTracking = VRCFaceTracking.UnifiedTracking;
 using VRCFaceTracking.Core.Params.Data;
 using VRCFaceTracking.Core.Services;
 using VRCFaceTracking.Linux.Models;
 using VRCFaceTracking.Linux.Services;
 
 // Wipe reset file if present
-var resetFile = Path.Combine(Utils.PersistentDataDirectory, "reset");
+var resetFile = Path.Combine(CoreUtils.PersistentDataDirectory, "reset");
 if (File.Exists(resetFile))
 {
-    foreach (var f in Directory.EnumerateFiles(Utils.PersistentDataDirectory, "*", SearchOption.AllDirectories))
+    foreach (var f in Directory.EnumerateFiles(CoreUtils.PersistentDataDirectory, "*", SearchOption.AllDirectories))
         File.Delete(f);
 }
 
@@ -70,15 +74,15 @@ var host = Host.CreateDefaultBuilder(args)
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("VRCFaceTracking");
 
 // Kill any lingering instances
-Utils.KillAllProcessesOfName("VRCFaceTracking");
-Utils.KillAllProcessesOfName("VRCFaceTracking.ModuleProcess");
+CoreUtils.KillAllProcessesOfName("VRCFaceTracking");
+CoreUtils.KillAllProcessesOfName("VRCFaceTracking.ModuleProcess");
 
 var mainService = host.Services.GetRequiredService<IMainService>();
 await mainService.InitializeAsync();
 
 logger.LogInformation("VRCFaceTracking {Version} running on Linux",
     typeof(MainStandalone).Assembly.GetName().Version);
-logger.LogInformation("Persistent data: {Dir}", Utils.PersistentDataDirectory);
+logger.LogInformation("Persistent data: {Dir}", CoreUtils.PersistentDataDirectory);
 
 // Graceful shutdown on Ctrl+C / SIGTERM
 var cts = new CancellationTokenSource();
