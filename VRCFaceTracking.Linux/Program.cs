@@ -15,6 +15,7 @@ using VRCFaceTracking.Linux.Models;
 using VRCFaceTracking.Linux.Services;
 using VRCFaceTracking.Linux;
 using VRCFaceTracking.Linux.ViewModels;
+using Microsoft.Extensions.Logging;
 using CoreUtils = VRCFaceTracking.Core.Utils;
 using UnifiedTracking = VRCFaceTracking.UnifiedTracking;
 
@@ -71,8 +72,9 @@ var host = Host.CreateDefaultBuilder(args)
         services.Configure<LocalSettingsOptions>(
             context.Configuration.GetSection(nameof(LocalSettingsOptions)));
 
-        // UI ViewModel
+        // UI ViewModels
         services.AddSingleton<MainWindowViewModel>();
+        services.AddTransient<RegistryViewModel>();
     })
     .Build();
 

@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VRCFaceTracking.Linux.ViewModels"
+             x:Class="VRCFaceTracking.Linux.Views.RegistryPage"
+             x:DataType="vm:RegistryViewModel">
+
+  <Grid RowDefinitions="Auto,Auto,*" Margin="24,16,24,24">
+
+    <TextBlock Grid.Row="0" Text="Module Registry" FontSize="22" FontWeight="Bold" Margin="0,0,0,4" />
+    <TextBlock Grid.Row="1" Text="{Binding StatusMessage}" FontSize="12"
+               Foreground="#A0A0C0" Margin="0,0,0,12" />
+
+    <ScrollViewer Grid.Row="2">
+      <StackPanel Spacing="6" IsVisible="{Binding !IsLoading}">
+        <ItemsControl ItemsSource="{Binding Entries}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:RegistryEntry">
+              <Border Classes="card" Padding="14" Margin="0,0,0,4">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Grid.Column="0" Spacing="3">
+                    <TextBlock Text="{Binding Module.ModuleName}" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Module.AuthorName}" FontSize="11" Foreground="#A0A0C0" />
+                    <TextBlock Text="{Binding Module.ModuleDescription}" FontSize="11"
+                               Foreground="#C0C0D0" TextWrapping="Wrap" MaxWidth="560" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6" Margin="12,0,0,0">
+                    <Button Content="Install"
+                            IsVisible="{Binding !IsInstalled}"
+                            IsEnabled="{Binding !IsInstalling}"
+                            Command="{Binding $parent[ItemsControl].((vm:RegistryViewModel)DataContext).InstallModuleCommand}"
+                            CommandParameter="{Binding}"
+                            Classes="install-btn" />
+                    <TextBlock Text="Installing..." FontSize="11" Foreground="#80C0A0"
+                               IsVisible="{Binding IsInstalling}" HorizontalAlignment="Center" />
+                    <StackPanel IsVisible="{Binding IsInstalled}" Spacing="4">
+                      <TextBlock Text="✓ Installed" FontSize="11" Foreground="#60C060"
+                                 HorizontalAlignment="Center" />
+                      <Button Content="Remove"
+                              Command="{Binding $parent[ItemsControl].((vm:RegistryViewModel)DataContext).UninstallModuleCommand}"
+                              CommandParameter="{Binding}"
+                              Classes="remove-btn" />
+                    </StackPanel>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Loading state -->
+    <StackPanel Grid.Row="2" IsVisible="{Binding IsLoading}"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+      <TextBlock Text="Loading registry..." Foreground="#A0A0C0" HorizontalAlignment="Center" />
+    </StackPanel>
+
+  </Grid>
+</UserControl>

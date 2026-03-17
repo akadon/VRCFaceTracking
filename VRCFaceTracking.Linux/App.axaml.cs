@@ -18,7 +18,8 @@ public class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var vm = Services!.GetRequiredService<MainWindowViewModel>();
-            desktop.MainWindow = new MainWindow(vm);
+            var registryVm = Services!.GetRequiredService<RegistryViewModel>();
+            desktop.MainWindow = new MainWindow(vm, registryVm);
         }
         base.OnFrameworkInitializationCompleted();
     }

@@ -20,6 +20,32 @@
     <Setter Property="Foreground" Value="White" />
   </Style>
 
+  <!-- Install / Remove buttons -->
+  <Style Selector="Button.install-btn">
+    <Setter Property="Background" Value="#2A5A3A" />
+    <Setter Property="Foreground" Value="#80E0A0" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="MinWidth" Value="80" />
+  </Style>
+  <Style Selector="Button.install-btn:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#3A7A50" />
+  </Style>
+  <Style Selector="Button.remove-btn">
+    <Setter Property="Background" Value="#5A2A2A" />
+    <Setter Property="Foreground" Value="#E08080" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="MinWidth" Value="80" />
+  </Style>
+  <Style Selector="Button.remove-btn:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#7A3A3A" />
+  </Style>
+
   <!-- Cards -->
   <Style Selector="Border.card">
     <Setter Property="Background" Value="#1A1A2E" />
