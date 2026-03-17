@@ -86,22 +86,23 @@
                               <TextBlock Grid.Column="0" Text="{Binding Name}"
                                          VerticalAlignment="Center" FontSize="12" />
                               <!-- value readout for slider -->
-                              <TextBlock Grid.Column="1" Text="{Binding Value}"
+                              <TextBlock Grid.Column="1"
+                                         Text="{ReflectionBinding Value}"
                                          FontSize="11" Foreground="#A0A0C0"
                                          VerticalAlignment="Center" Margin="8,0"
                                          IsVisible="{Binding Type,
                                            Converter={StaticResource TypeEq},
                                            ConverterParameter={x:Static mutator:MutationPropertyType.Slider}}" />
-                              <!-- checkbox -->
+                              <!-- checkbox: ReflectionBinding so object↔bool? works two-way -->
                               <CheckBox Grid.Column="2"
-                                        IsChecked="{Binding Value}"
+                                        IsChecked="{ReflectionBinding Value, Mode=TwoWay}"
                                         HorizontalAlignment="Right"
                                         IsVisible="{Binding Type,
                                           Converter={StaticResource TypeEq},
                                           ConverterParameter={x:Static mutator:MutationPropertyType.CheckBox}}" />
-                              <!-- slider -->
+                              <!-- slider: ReflectionBinding so object↔double works two-way -->
                               <Slider Grid.Column="2"
-                                      Value="{Binding Value}"
+                                      Value="{ReflectionBinding Value, Mode=TwoWay}"
                                       Minimum="{Binding Min}" Maximum="{Binding Max}"
                                       TickPlacement="None"
                                       IsVisible="{Binding Type,
@@ -109,7 +110,7 @@
                                         ConverterParameter={x:Static mutator:MutationPropertyType.Slider}}" />
                               <!-- textbox -->
                               <TextBox Grid.Column="2"
-                                       Text="{Binding Value}"
+                                       Text="{ReflectionBinding Value, Mode=TwoWay}"
                                        FontSize="11"
                                        IsVisible="{Binding Type,
                                          Converter={StaticResource TypeEq},
