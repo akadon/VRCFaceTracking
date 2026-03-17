@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="VRCFaceTracking.Linux.Views.SettingsPage">
+
+  <ScrollViewer Padding="24">
+    <StackPanel Spacing="16">
+      <TextBlock Text="Settings" FontSize="22" FontWeight="Bold" />
+
+      <Border Classes="card" Padding="16">
+        <StackPanel Spacing="12">
+          <TextBlock Text="OSC Configuration" FontSize="14" FontWeight="SemiBold" />
+
+          <StackPanel Spacing="4">
+            <TextBlock Text="VRChat IP Address" FontSize="12" Foreground="#A0A0C0" />
+            <TextBox Name="TxtDestAddress" Text="{Binding OscTarget.DestinationAddress}"
+                     Watermark="127.0.0.1" />
+          </StackPanel>
+
+          <StackPanel Spacing="4">
+            <TextBlock Text="Send Port (to VRChat)" FontSize="12" Foreground="#A0A0C0" />
+            <TextBox Name="TxtOutPort" Text="{Binding OscTarget.OutPort}"
+                     Watermark="9000" />
+          </StackPanel>
+
+          <StackPanel Spacing="4">
+            <TextBlock Text="Receive Port (from VRChat)" FontSize="12" Foreground="#A0A0C0" />
+            <TextBox Name="TxtInPort" Text="{Binding OscTarget.InPort}"
+                     Watermark="9001" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card" Padding="16">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Module Directory" FontSize="14" FontWeight="SemiBold" />
+          <TextBlock Text="Place .dll tracking modules in:" FontSize="12" Foreground="#A0A0C0" />
+          <SelectableTextBlock Text="{Binding ModulesDir}" FontFamily="Monospace" FontSize="11" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

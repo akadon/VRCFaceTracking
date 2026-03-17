@@ -1,20 +1,22 @@
+using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VRCFaceTracking.Core;
+using VRCFaceTracking.Core.Contracts;
 using VRCFaceTracking.Core.Contracts.Services;
 using VRCFaceTracking.Core.Library;
 using VRCFaceTracking.Core.mDNS;
 using VRCFaceTracking.Core.Models;
 using VRCFaceTracking.Core.OSC.Query.mDNS;
-using VRCFaceTracking.Core.Contracts;
-using VRCFaceTracking.Core.Models;
-using CoreUtils = VRCFaceTracking.Core.Utils;
-using UnifiedTracking = VRCFaceTracking.UnifiedTracking;
+using VRCFaceTracking.Core;
 using VRCFaceTracking.Core.Params.Data;
 using VRCFaceTracking.Core.Services;
 using VRCFaceTracking.Linux.Models;
 using VRCFaceTracking.Linux.Services;
+using VRCFaceTracking.Linux;
+using VRCFaceTracking.Linux.ViewModels;
+using CoreUtils = VRCFaceTracking.Core.Utils;
+using UnifiedTracking = VRCFaceTracking.UnifiedTracking;
 
 // Wipe reset file if present
 var resetFile = Path.Combine(CoreUtils.PersistentDataDirectory, "reset");
@@ -68,10 +70,11 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.Configure<LocalSettingsOptions>(
             context.Configuration.GetSection(nameof(LocalSettingsOptions)));
+
+        // UI ViewModel
+        services.AddSingleton<MainWindowViewModel>();
     })
     .Build();
-
-var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("VRCFaceTracking");
 
 // Kill any lingering instances
 CoreUtils.KillAllProcessesOfName("VRCFaceTracking");
@@ -80,28 +83,22 @@ CoreUtils.KillAllProcessesOfName("VRCFaceTracking.ModuleProcess");
 var mainService = host.Services.GetRequiredService<IMainService>();
 await mainService.InitializeAsync();
 
-logger.LogInformation("VRCFaceTracking {Version} running on Linux",
-    typeof(MainStandalone).Assembly.GetName().Version);
-logger.LogInformation("Persistent data: {Dir}", CoreUtils.PersistentDataDirectory);
+// Start the background host (OSC, parameter sender, etc.)
+await host.StartAsync();
 
-// Graceful shutdown on Ctrl+C / SIGTERM
-var cts = new CancellationTokenSource();
-Console.CancelKeyPress += (_, e) =>
-{
-    e.Cancel = true;
-    cts.Cancel();
-};
-AppDomain.CurrentDomain.ProcessExit += (_, _) => cts.Cancel();
+// Wire ViewModel's log listener to the log file / console
+var vm = host.Services.GetRequiredService<MainWindowViewModel>();
 
-try
-{
-    await host.StartAsync(cts.Token);
-    logger.LogInformation("Tracking active. Press Ctrl+C to stop.");
-    await host.WaitForShutdownAsync(cts.Token);
-}
-catch (OperationCanceledException) { }
-finally
-{
-    await mainService.Teardown();
-    logger.LogInformation("VRCFaceTracking stopped.");
-}
+// Launch the Avalonia UI (blocks until window is closed)
+VRCFaceTracking.Linux.App.Services = host.Services;
+var exitCode = AppBuilder.Configure<App>()
+    .UsePlatformDetect()
+    .WithInterFont()
+    .LogToTrace()
+    .StartWithClassicDesktopLifetime(args);
+
+// Graceful shutdown after window is closed
+await mainService.Teardown();
+await host.StopAsync();
+
+return exitCode;

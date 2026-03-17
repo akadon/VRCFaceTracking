@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="VRCFaceTracking.Linux.Views.ModulesPage">
+
+  <Grid RowDefinitions="Auto,*" Margin="24,16,24,24">
+    <TextBlock Grid.Row="0" Text="Modules" FontSize="22" FontWeight="Bold" Margin="0,0,0,12" />
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Spacing="8">
+        <ItemsControl ItemsSource="{Binding LibManager.LoadedModulesMetadata}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="card" Padding="16" Margin="0,0,0,4">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" />
+                  <Grid ColumnDefinitions="Auto,*,Auto,*">
+                    <TextBlock Grid.Column="0" Text="Eye: " FontSize="12" Foreground="#A0A0C0" />
+                    <TextBlock Grid.Column="1" Text="{Binding SupportsEye}" FontSize="12" />
+                    <TextBlock Grid.Column="2" Text="Expression: " FontSize="12" Foreground="#A0A0C0" />
+                    <TextBlock Grid.Column="3" Text="{Binding SupportsExpression}" FontSize="12" />
+                  </Grid>
+                  <TextBlock FontSize="11" Foreground="#A0A0C0">
+                    <Run Text="State: " />
+                    <Run Text="{Binding ModuleState}" />
+                  </TextBlock>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>
