@@ -12,7 +12,7 @@
 
     <ScrollViewer Grid.Row="2">
       <StackPanel Spacing="6" IsVisible="{Binding !IsLoading}">
-        <ItemsControl ItemsSource="{Binding Entries}">
+        <ItemsControl Name="ModuleList" ItemsSource="{Binding Entries}">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:RegistryEntry">
               <Border Classes="card" Padding="14" Margin="0,0,0,4">
@@ -27,7 +27,7 @@
                     <Button Content="Install"
                             IsVisible="{Binding !IsInstalled}"
                             IsEnabled="{Binding !IsInstalling}"
-                            Command="{Binding $parent[ItemsControl].((vm:RegistryViewModel)DataContext).InstallModuleCommand}"
+                            Command="{ReflectionBinding #ModuleList.DataContext.InstallModuleCommand}"
                             CommandParameter="{Binding}"
                             Classes="install-btn" />
                     <TextBlock Text="Installing..." FontSize="11" Foreground="#80C0A0"
@@ -36,7 +36,7 @@
                       <TextBlock Text="✓ Installed" FontSize="11" Foreground="#60C060"
                                  HorizontalAlignment="Center" />
                       <Button Content="Remove"
-                              Command="{Binding $parent[ItemsControl].((vm:RegistryViewModel)DataContext).UninstallModuleCommand}"
+                              Command="{ReflectionBinding #ModuleList.DataContext.UninstallModuleCommand}"
                               CommandParameter="{Binding}"
                               Classes="remove-btn" />
                     </StackPanel>

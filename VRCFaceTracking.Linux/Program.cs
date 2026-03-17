@@ -100,7 +100,15 @@ var exitCode = AppBuilder.Configure<App>()
     .StartWithClassicDesktopLifetime(args);
 
 // Graceful shutdown after window is closed
-await mainService.Teardown();
-await host.StopAsync();
+// TaskCanceledException/OperationCanceledException are expected here:
+// Tmds.DBus (Wayland backend) may try to dispatch via Avalonia's sync context
+// after the dispatcher has already been torn down.
+try
+{
+    await mainService.Teardown();
+    await host.StopAsync();
+}
+catch (TaskCanceledException) { }
+catch (OperationCanceledException) { }
 
 return exitCode;
