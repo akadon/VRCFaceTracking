@@ -15,6 +15,7 @@ using VRCFaceTracking.Linux.Models;
 using VRCFaceTracking.Linux.Services;
 using VRCFaceTracking.Linux;
 using VRCFaceTracking.Linux.ViewModels;
+using VRCFaceTracking.Core.Params.Data;
 using Microsoft.Extensions.Logging;
 using CoreUtils = VRCFaceTracking.Core.Utils;
 using UnifiedTracking = VRCFaceTracking.UnifiedTracking;
@@ -75,6 +76,7 @@ var host = Host.CreateDefaultBuilder(args)
         // UI ViewModels
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<RegistryViewModel>();
+        services.AddSingleton<CalibrationViewModel>();
     })
     .Build();
 
@@ -99,10 +101,8 @@ var exitCode = AppBuilder.Configure<App>()
     .LogToTrace()
     .StartWithClassicDesktopLifetime(args);
 
-// Graceful shutdown after window is closed
-// TaskCanceledException/OperationCanceledException are expected here:
-// Tmds.DBus (Wayland backend) may try to dispatch via Avalonia's sync context
-// after the dispatcher has already been torn down.
+// Teardown is handled in MainWindow.OnClosing while the Avalonia dispatcher
+// is still alive. Call these as a fallback in case the window was never shown.
 try
 {
     await mainService.Teardown();

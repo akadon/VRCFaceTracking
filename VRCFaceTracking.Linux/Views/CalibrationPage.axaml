@@ -1,0 +1,133 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:VRCFaceTracking.Linux.ViewModels"
+             xmlns:mutator="using:VRCFaceTracking.Core.Params.Data.Mutation"
+             xmlns:conv="using:VRCFaceTracking.Linux.Converters"
+             x:Class="VRCFaceTracking.Linux.Views.CalibrationPage"
+             x:DataType="vm:CalibrationViewModel">
+
+  <UserControl.Resources>
+    <conv:MutationTypeEqualConverter x:Key="TypeEq" />
+  </UserControl.Resources>
+
+  <ScrollViewer Padding="24,16,24,24">
+    <StackPanel Spacing="8">
+      <TextBlock Text="Calibration" FontSize="22" FontWeight="Bold" Margin="0,0,0,4" />
+      <TextBlock Text="Configure tracking mutations and continuous calibration."
+                 FontSize="12" Foreground="#A0A0C0" Margin="0,0,0,8" />
+
+      <ItemsControl ItemsSource="{Binding Mutations}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="mutator:TrackingMutation">
+            <Expander Margin="0,0,0,4" HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch">
+              <Expander.Header>
+                <Grid ColumnDefinitions="Auto,*" Margin="0,6,0,6">
+                  <CheckBox Grid.Column="0" IsChecked="{Binding IsActive}"
+                            VerticalAlignment="Center" Margin="0,0,12,0" />
+                  <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Description}" FontSize="11"
+                               Foreground="#A0A0C0" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </Expander.Header>
+
+              <ItemsControl Name="ComponentList" ItemsSource="{Binding Components}" Margin="8,4,0,8">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="mutator:IMutationComponent">
+                    <ContentControl Content="{Binding}">
+                      <ContentControl.DataTemplates>
+
+                        <!-- Button / Action -->
+                        <DataTemplate DataType="mutator:MutationAction">
+                          <Border Background="#14ffffff" CornerRadius="4" Padding="12,8" Margin="0,2">
+                            <Grid ColumnDefinitions="*,Auto">
+                              <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                         VerticalAlignment="Center" FontSize="12" />
+                              <Button Grid.Column="1" Content="{Binding Name}"
+                                      Command="{Binding}"
+                                      Padding="10,4" FontSize="11"
+                                      Background="#2A3A5A" Foreground="#80B0E0"
+                                      CornerRadius="4" BorderThickness="0" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+
+                        <!-- Range (two-handle) -->
+                        <DataTemplate DataType="mutator:MutationRangeProperty">
+                          <Border Background="#14ffffff" CornerRadius="4" Padding="12,8" Margin="0,2">
+                            <StackPanel Spacing="6">
+                              <TextBlock Text="{Binding Name}" FontSize="12" />
+                              <Grid ColumnDefinitions="70,*,70">
+                                <NumericUpDown Grid.Column="0" Value="{Binding Item1}"
+                                              Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                              Increment="0.01" FormatString="0.00"
+                                              FontSize="11" Padding="4,2" />
+                                <StackPanel Grid.Column="1" Spacing="1" Margin="8,0" VerticalAlignment="Center">
+                                  <Slider Value="{Binding Item1}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                          TickPlacement="None" />
+                                  <Slider Value="{Binding Item2}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                          TickPlacement="None" />
+                                </StackPanel>
+                                <NumericUpDown Grid.Column="2" Value="{Binding Item2}"
+                                              Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                              Increment="0.01" FormatString="0.00"
+                                              FontSize="11" Padding="4,2" />
+                              </Grid>
+                            </StackPanel>
+                          </Border>
+                        </DataTemplate>
+
+                        <!-- Property: checkbox / slider / textbox -->
+                        <DataTemplate DataType="mutator:MutationProperty">
+                          <Border Background="#14ffffff" CornerRadius="4" Padding="12,8" Margin="0,2">
+                            <Grid ColumnDefinitions="*,Auto,180">
+                              <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                         VerticalAlignment="Center" FontSize="12" />
+                              <!-- value readout for slider -->
+                              <TextBlock Grid.Column="1" Text="{Binding Value}"
+                                         FontSize="11" Foreground="#A0A0C0"
+                                         VerticalAlignment="Center" Margin="8,0"
+                                         IsVisible="{Binding Type,
+                                           Converter={StaticResource TypeEq},
+                                           ConverterParameter={x:Static mutator:MutationPropertyType.Slider}}" />
+                              <!-- checkbox -->
+                              <CheckBox Grid.Column="2"
+                                        IsChecked="{Binding Value}"
+                                        HorizontalAlignment="Right"
+                                        IsVisible="{Binding Type,
+                                          Converter={StaticResource TypeEq},
+                                          ConverterParameter={x:Static mutator:MutationPropertyType.CheckBox}}" />
+                              <!-- slider -->
+                              <Slider Grid.Column="2"
+                                      Value="{Binding Value}"
+                                      Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                      TickPlacement="None"
+                                      IsVisible="{Binding Type,
+                                        Converter={StaticResource TypeEq},
+                                        ConverterParameter={x:Static mutator:MutationPropertyType.Slider}}" />
+                              <!-- textbox -->
+                              <TextBox Grid.Column="2"
+                                       Text="{Binding Value}"
+                                       FontSize="11"
+                                       IsVisible="{Binding Type,
+                                         Converter={StaticResource TypeEq},
+                                         ConverterParameter={x:Static mutator:MutationPropertyType.TextBox}}" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+
+                      </ContentControl.DataTemplates>
+                    </ContentControl>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+            </Expander>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

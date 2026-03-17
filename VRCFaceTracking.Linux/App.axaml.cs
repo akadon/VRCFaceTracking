@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using VRCFaceTracking.Linux.ViewModels;
 using VRCFaceTracking.Linux.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace VRCFaceTracking.Linux;
 
@@ -19,7 +20,8 @@ public class App : Application
         {
             var vm = Services!.GetRequiredService<MainWindowViewModel>();
             var registryVm = Services!.GetRequiredService<RegistryViewModel>();
-            desktop.MainWindow = new MainWindow(vm, registryVm);
+            var calibrationVm = Services!.GetRequiredService<CalibrationViewModel>();
+            desktop.MainWindow = new MainWindow(vm, registryVm, calibrationVm);
         }
         base.OnFrameworkInitializationCompleted();
     }

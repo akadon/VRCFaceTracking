@@ -20,6 +20,7 @@
 
         <Button Name="BtnHome" Classes="nav" Content="  Home" Click="NavHome_Click" />
         <Button Name="BtnRegistry" Classes="nav" Content="  Module Registry" Click="NavRegistry_Click" />
+        <Button Name="BtnCalibration" Classes="nav" Content="  Calibration" Click="NavCalibration_Click" />
         <Button Name="BtnModules" Classes="nav" Content="  Loaded Modules" Click="NavModules_Click" />
         <Button Name="BtnOutput" Classes="nav" Content="  Output" Click="NavOutput_Click" />
         <Button Name="BtnSettings" Classes="nav" Content="  Settings" Click="NavSettings_Click" />
